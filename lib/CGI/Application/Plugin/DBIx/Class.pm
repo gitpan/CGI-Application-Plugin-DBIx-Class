@@ -1,5 +1,5 @@
 package CGI::Application::Plugin::DBIx::Class;
-our $VERSION = '0.092800';
+our $VERSION = '0.092801';
 
 
 
@@ -142,7 +142,7 @@ CGI::Application::Plugin::DBIx::Class - Access a DBIx::Class Schema from a CGI::
 
 =head1 VERSION
 
-version 0.092800
+version 0.092801
 
 =pod 
 
