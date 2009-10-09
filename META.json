@@ -1,13 +1,13 @@
 {
    "resources" : {
-      "repository" : "http://github.com/frioux/CGI-Application-Plugin-DBIx-Class"
+      "repository" : "http://github.com/frioux/CGI-Application-Plugin-ExtJS"
    },
    "generated_by" : "Dist::Zilla version 1.092680",
    "meta-spec" : {
       "version" : 1.4,
       "url" : "http://module-build.sourceforge.net/META-spec-v1.4.html"
    },
-   "version" : "0.092801",
+   "version" : "0.092820",
    "name" : "CGI-Application-Plugin-DBIx-Class",
    "author" : [
       "Arthur Axel \"fREW\" Schmidt <frioux+cpan@gmail.com>"
@@ -15,6 +15,7 @@
    "license" : "perl",
    "build_requires" : {
       "Test::More" : "0",
+      "parent" : "0",
       "UNIVERSAL" : "0",
       "FindBin" : "0",
       "Test::Deep" : "0"
@@ -25,5 +26,5 @@
       "DBIx::Class" : "0.08108",
       "Readonly" : "0"
    },
-   "abstract" : "Access a DBIx::Class Schema from a CGI::Application"
+   "abstract" : "Convert paginated DBIx::Class::ResultSet's to JSON-style structures"
 }

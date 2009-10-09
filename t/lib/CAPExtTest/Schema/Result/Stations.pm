@@ -1,5 +1,5 @@
-package CAPDBICTest::Schema::Result::Stations;
-our $VERSION = '0.092801';
+package CAPExtTest::Schema::Result::Stations;
+our $VERSION = '0.092820';
 
 
 use parent 'DBIx::Class';
@@ -10,5 +10,12 @@ __PACKAGE__->load_components('Core');
 __PACKAGE__->table('Station');
 __PACKAGE__->add_columns(qw/ id bill ted /);
 __PACKAGE__->set_primary_key('id');
+
+sub TO_JSON {
+   my $self = shift;
+   return {
+      map { $_ => $self->$_ } qw{id bill}
+   };
+}
 
 1;
