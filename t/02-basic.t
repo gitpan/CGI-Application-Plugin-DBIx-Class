@@ -3,20 +3,21 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Deep;
+use UNIVERSAL;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use lib "$FindBin::Bin/lib";
-
-BEGIN { use_ok('CAPExtTest::Schema') };
+BEGIN { use_ok('CGI::Application::Plugin::DBH') };
+BEGIN { use_ok('CAPDBICTest::Schema') };
 BEGIN {
    $ENV{CGI_APP_RETURN_ONLY} = 1;
-   use_ok('CAPExtTest::CGIApp');;
+   use_ok('CAPDBICTest::CGIApp');;
 };
 
-my $t1_obj = CAPExtTest::CGIApp->new();
+my $t1_obj = CAPDBICTest::CGIApp->new();
 my $t1_output = $t1_obj->run();
 
-my $schema = CAPExtTest::Schema->connect( $CAPExtTest::CGIApp::CONNECT_STR );
+my $schema = CAPDBICTest::Schema->connect( $CAPDBICTest::CGIApp::CONNECT_STR );
 $schema->deploy();
 $schema->populate(Stations => [
    [qw{id bill    ted       }],
@@ -31,90 +32,95 @@ $schema->populate(Stations => [
    [qw{9  wicked  out       }],
 ]);
 
+ok $t1_obj->schema->isa('DBIx::Class::Schema'), 'schema() method returns DBIx::Class schema';
 ok $t1_obj->schema->resultset('Stations'), 'resultset correctly found';
 
+# page_and_sort
 {
    $t1_obj->query->param(limit => 3);
-   my $paginated =
-   $t1_obj->ext_paginate(
-      $t1_obj->paginate(
-	 $t1_obj->schema->resultset('Stations')
-      )
-   );
-   cmp_deeply $paginated,
-	      {
-		 total => 9,
-		 data=> set({
-		    id => 1,
-		    bill => 'awesome'
-		 },{
-		    id => 2,
-		    bill => 'cool'
-		 },{
-		    id => 3,
-		    bill => 'tubular'
-		 })
-	      },
-	      'ext_paginate correctly builds structure';
+   $t1_obj->query->param(dir => 'asc');
+   $t1_obj->query->param(sort => 'bill');
+   my $paged_and_sorted =
+      $t1_obj->page_and_sort($t1_obj->schema->resultset('Stations'));
+   is $paged_and_sorted->count => 3, 'page_and_sort correctly pages';
+   cmp_deeply [map $_->bill, $paged_and_sorted->all],
+              [sort map $_->bill, $paged_and_sorted->all],
+	      'page_and_sort correctly sorts';
    $t1_obj->query->delete_all;
 }
 
+# paginate
 {
+
    $t1_obj->query->param(limit => 3);
-   my $paginated =
-   $t1_obj->ext_paginate(
-      $t1_obj->paginate(
-	 $t1_obj->schema->resultset('Stations')
-      ), sub {
-	 {
-	    id => $_[0]->id
-	 }
-      }
-   );
-   cmp_deeply $paginated,
-	      {
-		 total => 9,
-		 data=> set({
-		    id => 1,
-		 },{
-		    id => 2,
-		 },{
-		    id => 3,
-		 })
-	      },
-	      'ext_paginate with coderef correctly builds structure';
+   my $paginated = $t1_obj->paginate($t1_obj->schema->resultset('Stations'));
+   cmp_ok $paginated->count, '>=', 3,
+      'paginate gave the correct amount of results';
+
+   $t1_obj->query->param(start => 3);
+   my $paginated_with_start =
+      $t1_obj->paginate($t1_obj->schema->resultset('Stations'));
+   my %hash;
+   @hash{map $_->id, $paginated->all} = ();
+   ok !grep({ exists $hash{$_} } map $_->id, $paginated_with_start->all ),
+      'pages do not intersect';
    $t1_obj->query->delete_all;
 }
 
+# search
 {
-   my $data =
-   $t1_obj->ext_parcel(
-      [qw{foo bar baz}]
-   );
-   cmp_deeply $data,
-	      {
-		 total => 3,
-		 data=> [qw{foo bar baz}],
-	      },
-	      'ext_parcel correctly parcels and defaults data';
+   my $searched = $t1_obj->search('Stations');
+   cmp_deeply [map $_->id, $searched->all], [3], q{controller_search get's called by search};
+   $t1_obj->query->delete_all;
 }
 
-
+# sort
 {
-   my $data =
-   $t1_obj->ext_parcel(
-      [qw{foo bar baz}], 5
-   );
-   cmp_deeply $data,
-	      {
-		 total => 5,
-		 data=> [qw{foo bar baz}],
-	      },
-	      'ext_parcel correctly parcels data';
+   my $sort = $t1_obj->sort('Stations');
+   cmp_deeply [map $_->bill, $sort->all], [sort map $_->bill, $sort->all], q{controller_sort get's called by sort};
+   $t1_obj->query->delete_all;
 }
 
+# simple_search
+{
+   $t1_obj->query->param('bill', 'oo');
+   my $simple_searched = $t1_obj->simple_search({ rs => 'Stations' });
+   is scalar(grep { $_->bill =~ m/oo/ } $simple_searched->all),
+      scalar($simple_searched->all), 'simple search found the right results';
+   $t1_obj->query->delete_all;
+}
 
+# simple_sort
+{
+   my $simple_sorted =
+      $t1_obj->simple_sort($t1_obj->schema->resultset('Stations'));
+   cmp_deeply [map $_->id, $simple_sorted->all], [1..9], 'default sort is id';
 
+   $t1_obj->query->param(dir => 'asc');
+   $t1_obj->query->param(sort => 'bill');
+   $simple_sorted =
+      $t1_obj->simple_sort($t1_obj->schema->resultset('Stations'));
+   cmp_deeply [map $_->bill, $simple_sorted->all],
+              [sort map $_->bill, $simple_sorted->all], 'alternate sort works';
+
+   $t1_obj->query->param(dir => 'desc');
+   $simple_sorted =
+      $t1_obj->simple_sort($t1_obj->schema->resultset('Stations'));
+   cmp_deeply [map $_->bill, $simple_sorted->all],
+              [reverse sort map $_->bill, $simple_sorted->all],
+	      'alternate sort works';
+   $t1_obj->query->delete_all;
+}
+
+# simple_deletion
+{
+   $t1_obj->query->param('to_delete', 1, 2, 3);
+   cmp_bag [map $_->id, $t1_obj->schema->resultset('Stations')->all] => [1..9], 'values are not deleted';
+   my $simple_deletion = $t1_obj->simple_deletion({ rs => 'Stations' });
+   cmp_bag $simple_deletion => [1,2,3], 'values appear to be deleted';
+   cmp_bag [map $_->id, $t1_obj->schema->resultset('Stations')->all] => [4..9], 'values are deleted';
+   $t1_obj->query->delete_all;
+}
 
 done_testing;
-END { unlink $CAPExtTest::CGIApp::DBFILE };
+END { unlink $CAPDBICTest::CGIApp::DBFILE };

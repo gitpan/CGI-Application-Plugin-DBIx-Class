@@ -1,5 +1,12 @@
-Revision history for CGI-Application-Plugin-ExtJS
+Revision history for CGI-Application-Plugin-DBIx-Class
 
-0.092820 Fri Oct 09 00:13:00 CDT 2009
+0.092830 Sat Oct 10 01:47:00 CDT 2009
+       - Add more missing deps
+       - Fix width of example code in POD
+
+0.092801 Tue Oct 06 22:38:00 CDT 2009
+       - Add missing build requires directives
+
+0.092800 Tue Oct 06 15:32:00 CDT 2009
        - Initial Release
 

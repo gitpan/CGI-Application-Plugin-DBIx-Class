@@ -1,5 +1,5 @@
-package CAPExtTest::CGIApp;
-our $VERSION = '0.092820';
+package CAPDBICTest::CGIApp;
+our $VERSION = '0.092830';
 
 
 use strict;
@@ -9,9 +9,8 @@ use parent 'CGI::Application';
 
 use Readonly;
 use CGI::Application::Plugin::DBH (qw/dbh_config dbh/);
-use CAPExtTest::Schema;
+use CAPDBICTest::Schema;
 use CGI::Application::Plugin::DBIx::Class ':all';
-use CGI::Application::Plugin::ExtJS ':all';
 
 Readonly our $DBFILE => 'test.db';
 Readonly our $CONNECT_STR => "dbi:SQLite:dbname=$DBFILE";
@@ -22,7 +21,7 @@ sub cgiapp_init {
   $self->dbh_config( $CONNECT_STR );
 
   $self->dbic_config({
-     schema => 'CAPExtTest::Schema',
+     schema => 'CAPDBICTest::Schema',
   });
 }
 
@@ -35,7 +34,8 @@ sub setup {
 }
 
 sub test_mode {
-   return 1;
+  my $self = shift;
+  return 1;
 }
 
 1;
