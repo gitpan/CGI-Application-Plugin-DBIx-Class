@@ -6,8 +6,8 @@
       "version" : 1.4,
       "url" : "http://module-build.sourceforge.net/META-spec-v1.4.html"
    },
-   "generated_by" : "Dist::Zilla version 1.092680",
-   "version" : "0.092900",
+   "generated_by" : "Dist::Zilla version 1.092930",
+   "version" : "0.093010",
    "name" : "CGI-Application-Plugin-DBIx-Class",
    "author" : [
       "Arthur Axel \"fREW\" Schmidt <frioux+cpan@gmail.com>"
@@ -18,12 +18,12 @@
       "UNIVERSAL" : "0",
       "parent" : "0",
       "FindBin" : "0",
-      "Readonly" : "0",
       "CGI::Application" : "0",
       "CGI::Application::Plugin::DBH" : "0",
-      "Test::More" : "0",
+      "Test::More" : "0.88",
       "DBIx::Class" : "0.08108",
       "Test::Deep" : "0"
    },
    "abstract" : "Access a DBIx::Class Schema from a CGI::Application"
 }
+

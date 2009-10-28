@@ -6,8 +6,7 @@ Makefile.PL
 README
 dist.ini
 lib/CGI/Application/Plugin/DBIx/Class.pm
-t/01-pod.t
-t/02-basic.t
+t/01-basic.t
 t/lib/CAPDBICTest/CGIApp.pm
 t/lib/CAPDBICTest/Schema.pm
 t/lib/CAPDBICTest/Schema/Result/Stations.pm

@@ -1,5 +1,5 @@
 package CGI::Application::Plugin::DBIx::Class;
-our $VERSION = '0.092900';
+our $VERSION = '0.093010';
 
 
 
@@ -7,7 +7,6 @@ our $VERSION = '0.092900';
 
 use strict;
 use warnings;
-use Readonly;
 use Carp 'croak';
 
 require Exporter;
@@ -16,8 +15,6 @@ use base qw(Exporter AutoLoader);
 
 our @EXPORT_OK   = qw(&dbic_config &page_and_sort &schema &search &simple_search &simple_sort &sort &paginate &simple_deletion);
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
-
-Readonly my $PAGES => 25;
 
 sub dbic_config {
    my $self = shift;
@@ -28,6 +25,8 @@ sub dbic_config {
    $self->{__dbic_ignored_params} = { map { $_ => 1 } @{$ignored_params} };
 
    $self->{__dbic_schema_class} = $config->{schema} or croak 'you must pass a schema into dbic_config';
+
+   $self->{__dbic_page_size} = $config->{page_size} || 25;
 }
 
 sub page_and_sort {
@@ -41,7 +40,7 @@ sub paginate {
    my $self     = shift;
    my $resultset = shift;
    # param names should be configurable
-   my $rows = $self->query->param('limit') || $PAGES;
+   my $rows = $self->query->param('limit') || $self->{__dbic_page_size};
    my $page =
       $self->query->param('start')
       ? ( $self->query->param('start') / $rows + 1 )
@@ -142,7 +141,7 @@ CGI::Application::Plugin::DBIx::Class - Access a DBIx::Class Schema from a CGI::
 
 =head1 VERSION
 
-version 0.092900
+version 0.093010
 
 =pod 
 
@@ -188,34 +187,29 @@ L<CGI::Application::Plugin::DBH>.
 
  $self->dbic_config({schema => MyApp::Schema->connect(@connection_data)});
 
-=head3 Description
-
 You must run this method in setup or cgiapp_init to setup your schema.
 
-=head3 Valid arguments are:
+Valid arguments are:
 
  schema - Required, Name of DBIC Schema
  ignored_params - Optional, Params to ignore when doing a simple search or sort,
     defaults to
-
  [qw{limit start sort dir _dc rm xaction}]
+
+ page_size - Optional, amount of results per page, defaults to 25
 
 =head2 page_and_sort
 
  my $resultset = $self->schema->resultset('Foo');
  my $result = $self->page_and_sort($resultset);
 
-=head3 Description
-
-This is a helper method that will first sort your data and then paginate it.
-Returns a resultset.
+This is a helper method that will first sort (with C<simple_sort>) your data and
+then paginate it.  Returns a resultset.
 
 =head2 paginate
 
  my $resultset = $self->schema->resultset('Foo');
  my $result = $self->paginate($resultset);
-
-=head3 Description
 
 Paginates the passed in resultset based on the following CGI parameters:
 
@@ -228,16 +222,12 @@ Returns a resultset.
 
  my $schema = $self->schema;
 
-=head3 Description
-
 This is just a basic accessor method for your schema
 
 =head2 search
 
  my $resultset   = $self->schema->resultset('Foo');
  my $searched_rs = $self->search($resultset);
-
-=head3 Description
 
 Calls the controller_search method on the passed in resultset with all of the
 CGI parameters.  I like to have this look something like the following:
@@ -300,8 +290,6 @@ CGI parameters.  I like to have this look something like the following:
  my $resultset = $self->schema->resultset('Foo');
  my $result = $self->sort($resultset);
 
-=head3 Description
-
 Exactly the same as search, except calls controller_sort.  Here is how I use it:
 
  # Base sort dispatcher, defined in MyApp::Schema::ResultSet
@@ -355,13 +343,11 @@ Exactly the same as search, except calls controller_sort.  Here is how I use it:
 
  $self->simple_deletion({ rs => 'Foo' });
 
-=head3 Description
-
 Deletes from the passed in resultset based on the following CGI parameter:
 
  to_delete - values of the ids of items to delete
 
-=head3 Valid arguments are:
+Valid arguments are:
 
  rs - resultset loaded into schema
 
@@ -371,7 +357,7 @@ Note that this method uses the $rs->delete method, as opposed to $rs->delete_all
 
  my $searched_rs = $self->simple_search({ rs => 'Foo' });
 
-=head3 Valid arguments are:
+Valid arguments are:
 
  rs - source loaded into schema
 
@@ -379,8 +365,6 @@ Note that this method uses the $rs->delete method, as opposed to $rs->delete_all
 
  my $resultset = $self->schema->resultset('Foo');
  my $sorted_rs = $self->simple_sort($resultset);
-
-=head3 Description
 
 Sorts the passed in resultset based on the following CGI parameters:
 
