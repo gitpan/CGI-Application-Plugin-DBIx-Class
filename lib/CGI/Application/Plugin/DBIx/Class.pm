@@ -1,5 +1,5 @@
 package CGI::Application::Plugin::DBIx::Class;
-our $VERSION = '0.093010';
+our $VERSION = '0.093011';
 
 
 
@@ -11,7 +11,7 @@ use Carp 'croak';
 
 require Exporter;
 
-use base qw(Exporter AutoLoader);
+use parent qw(Exporter AutoLoader);
 
 our @EXPORT_OK   = qw(&dbic_config &page_and_sort &schema &search &simple_search &simple_sort &sort &paginate &simple_deletion);
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
@@ -103,7 +103,7 @@ sub simple_search {
       # going to imply null for a user
       if ( $self->query->param($_) ne '' and not $skips{$_} ) {
          # should be configurable
-         $searches->{$_} = { like => q{%} . $self->query->param($_) . q{%} };
+         $searches->{$_} = { like => [map "%$_%", $self->query->param($_)]};
       }
    }
 
@@ -132,7 +132,6 @@ sub simple_sort {
 
 
 
-
 =pod
 
 =head1 NAME
@@ -141,9 +140,7 @@ CGI::Application::Plugin::DBIx::Class - Access a DBIx::Class Schema from a CGI::
 
 =head1 VERSION
 
-version 0.093010
-
-=pod 
+version 0.093011
 
 =head1 SYNOPSIS
 
@@ -357,6 +354,10 @@ Note that this method uses the $rs->delete method, as opposed to $rs->delete_all
 
  my $searched_rs = $self->simple_search({ rs => 'Foo' });
 
+This method just searches on all of the CGI parameters that are not in the
+C<ignored_params> with a like "%$value%".  If there are multiple values it will
+make the search an C<or> between the different values.
+
 Valid arguments are:
 
  rs - source loaded into schema
@@ -380,8 +381,6 @@ L<CGI::Application::Plugin::DBH>
 Thanks to Micro Technology Services, Inc. for funding the initial development
 of this module.
 
-
-
 =head1 AUTHOR
 
   Arthur Axel "fREW" Schmidt <frioux+cpan@gmail.com>
@@ -393,8 +392,7 @@ This software is copyright (c) 2009 by Arthur Axel "fREW" Schmidt.
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
-=cut 
-
+=cut
 
 
 __END__

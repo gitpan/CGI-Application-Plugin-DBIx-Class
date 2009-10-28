@@ -96,15 +96,24 @@ sort: {
 simple_search: {
    $t1_obj->query->param('bill', 'oo');
    my $simple_searched = $t1_obj->simple_search({ rs => 'Stations' });
+
    is scalar(grep { $_->bill =~ m/oo/ } $simple_searched->all),
       scalar($simple_searched->all), 'simple search found the right results';
+
+   $t1_obj->query->delete_all;
+
+   $t1_obj->query->param( -name => 'bill', -values => ['ubu', 'oo'] );
+   $simple_searched = $t1_obj->simple_search({ rs => 'Stations' });
+
+   is scalar(grep { $_->bill =~ m/oo|ubu/ } $simple_searched->all),
+      scalar($simple_searched->all), 'simple search found the right results';
+
    $t1_obj->query->delete_all;
 }
 
 simple_sort: {
    my $simple_sorted =
       $t1_obj->simple_sort($t1_obj->schema->resultset('Stations'));
-      use Data::Dump 'pp';
    cmp_deeply [map $_->id, $simple_sorted->all], [1..26], 'default sort is id';
 
    $t1_obj->query->param(dir => 'asc');

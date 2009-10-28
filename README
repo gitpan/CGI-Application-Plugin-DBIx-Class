@@ -3,7 +3,7 @@ NAME
     a CGI::Application
 
 VERSION
-    version 0.093010
+    version 0.093011
 
 SYNOPSIS
      use CGI::Application::Plugin::DBH (qw/dbh_config dbh/);
@@ -209,6 +209,10 @@ METHODS
 
   simple_search
      my $searched_rs = $self->simple_search({ rs => 'Foo' });
+
+    This method just searches on all of the CGI parameters that are not in
+    the "ignored_params" with a like "%$value%". If there are multiple
+    values it will make the search an "or" between the different values.
 
     Valid arguments are:
 
