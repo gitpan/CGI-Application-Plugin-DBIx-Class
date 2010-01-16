@@ -1,7 +1,5 @@
 package CGI::Application::Plugin::DBIx::Class;
-our $VERSION = '0.093011';
-
-
+our $VERSION = '0.100160';
 
 # ABSTRACT: Access a DBIx::Class Schema from a CGI::Application
 
@@ -140,7 +138,7 @@ CGI::Application::Plugin::DBIx::Class - Access a DBIx::Class Schema from a CGI::
 
 =head1 VERSION
 
-version 0.093011
+version 0.100160
 
 =head1 SYNOPSIS
 
@@ -387,7 +385,7 @@ of this module.
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2009 by Arthur Axel "fREW" Schmidt.
+This software is copyright (c) 2010 by Arthur Axel "fREW" Schmidt.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
