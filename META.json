@@ -2,30 +2,28 @@
    "resources" : {
       "repository" : "http://github.com/frioux/CGI-Application-Plugin-DBIx-Class"
    },
-   "generated_by" : "Dist::Zilla version 1.100130",
    "meta-spec" : {
       "version" : 1.4,
       "url" : "http://module-build.sourceforge.net/META-spec-v1.4.html"
    },
-   "version" : "0.100160",
+   "generated_by" : "Dist::Zilla version 1.100130",
+   "version" : "0.100180",
    "name" : "CGI-Application-Plugin-DBIx-Class",
    "author" : [
       "Arthur Axel \"fREW\" Schmidt <frioux+cpan@gmail.com>"
    ],
    "license" : "perl",
-   "build_requires" : {
-      "Test::More" : "0.88",
-      "UNIVERSAL" : "0",
-      "SQL::Translator" : "0.11002",
-      "FindBin" : "0",
-      "Test::Deep" : "0"
-   },
    "requires" : {
+      "parent" : "0",
+      "SQL::Translator" : "0.11002",
+      "UNIVERSAL" : "0",
+      "FindBin" : "0",
+      "ExtUtils::MakeMaker" : "6.11",
+      "Test::More" : "0.88",
       "CGI::Application" : "0",
       "CGI::Application::Plugin::DBH" : "0",
-      "parent" : "0",
-      "ExtUtils::MakeMaker" : "6.11",
-      "DBIx::Class" : "0.08108"
+      "DBIx::Class" : "0.08108",
+      "Test::Deep" : "0"
    },
    "abstract" : "Access a DBIx::Class Schema from a CGI::Application"
 }

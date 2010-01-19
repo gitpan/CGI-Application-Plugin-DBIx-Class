@@ -1,5 +1,5 @@
 package CAPDBICTest::Schema;
-our $VERSION = '0.100160';
+our $VERSION = '0.100180';
 use parent 'DBIx::Class::Schema';
 
 __PACKAGE__->load_namespaces();

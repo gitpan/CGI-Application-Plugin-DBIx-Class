@@ -3,7 +3,7 @@ NAME
     a CGI::Application
 
 VERSION
-    version 0.100160
+    version 0.100180
 
 SYNOPSIS
      use CGI::Application::Plugin::DBH (qw/dbh_config dbh/);

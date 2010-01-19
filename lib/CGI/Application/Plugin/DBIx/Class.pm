@@ -1,5 +1,5 @@
 package CGI::Application::Plugin::DBIx::Class;
-our $VERSION = '0.100160';
+our $VERSION = '0.100180';
 
 # ABSTRACT: Access a DBIx::Class Schema from a CGI::Application
 
@@ -138,7 +138,7 @@ CGI::Application::Plugin::DBIx::Class - Access a DBIx::Class Schema from a CGI::
 
 =head1 VERSION
 
-version 0.100160
+version 0.100180
 
 =head1 SYNOPSIS
 
