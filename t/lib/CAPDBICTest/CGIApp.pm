@@ -1,5 +1,5 @@
 package CAPDBICTest::CGIApp;
-our $VERSION = '0.100180';
+our $VERSION = '0.100210';
 use strict;
 use warnings;
 
