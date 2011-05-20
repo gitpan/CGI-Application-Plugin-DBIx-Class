@@ -3,7 +3,7 @@ NAME
     a CGI::Application
 
 VERSION
-    version 1.000000
+    version 1.000100
 
 SYNOPSIS
      use CGI::Application::Plugin::DBIx::Class ':all';
