@@ -1,30 +1,45 @@
 {
-   "resources" : {
-      "repository" : "http://github.com/frioux/CGI-Application-Plugin-DBIx-Class"
-   },
-   "generated_by" : "Dist::Zilla version 1.100160",
-   "meta-spec" : {
-      "version" : 1.4,
-      "url" : "http://module-build.sourceforge.net/META-spec-v1.4.html"
-   },
-   "version" : "0.100210",
-   "name" : "CGI-Application-Plugin-DBIx-Class",
+   "abstract" : "Access a DBIx::Class Schema from a CGI::Application",
    "author" : [
       "Arthur Axel \"fREW\" Schmidt <frioux+cpan@gmail.com>"
    ],
-   "license" : "perl",
-   "requires" : {
-      "parent" : "0",
-      "SQL::Translator" : "0.11002",
-      "UNIVERSAL" : "0",
-      "FindBin" : "0",
-      "ExtUtils::MakeMaker" : "6.11",
-      "Test::More" : "0.88",
-      "CGI::Application" : "0",
-      "CGI::Application::Plugin::DBH" : "0",
-      "DBIx::Class" : "0.08108",
-      "Test::Deep" : "0"
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 4.200006, CPAN::Meta::Converter version 2.110930",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
    },
-   "abstract" : "Access a DBIx::Class Schema from a CGI::Application"
+   "name" : "CGI-Application-Plugin-DBIx-Class",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "6.30"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "CGI::Application" : 0,
+            "DBIx::Class" : "0.08108",
+            "FindBin" : 0,
+            "SQL::Translator" : "0.11002",
+            "Test::Deep" : 0,
+            "Test::More" : "0.88",
+            "UNIVERSAL" : 0,
+            "parent" : 0
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/frioux/CGI-Application-Plugin-DBIx-Class.git",
+         "web" : "http://github.com/frioux/CGI-Application-Plugin-DBIx-Class"
+      }
+   },
+   "version" : "1.000000"
 }
 

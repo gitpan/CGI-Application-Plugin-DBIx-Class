@@ -2,7 +2,6 @@ Changes
 LICENSE
 MANIFEST
 META.json
-META.yml
 Makefile.PL
 README
 dist.ini
@@ -12,5 +11,4 @@ t/lib/CAPDBICTest/CGIApp.pm
 t/lib/CAPDBICTest/Schema.pm
 t/lib/CAPDBICTest/Schema/Result/Stations.pm
 t/lib/CAPDBICTest/Schema/ResultSet/Stations.pm
-t/release-pod-coverage.t
 t/release-pod-syntax.t

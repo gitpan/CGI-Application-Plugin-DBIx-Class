@@ -1,5 +1,7 @@
 package CGI::Application::Plugin::DBIx::Class;
-our $VERSION = '0.100210';
+BEGIN {
+  $CGI::Application::Plugin::DBIx::Class::VERSION = '1.000000';
+}
 
 # ABSTRACT: Access a DBIx::Class Schema from a CGI::Application
 
@@ -15,6 +17,11 @@ our @EXPORT_OK   = qw(&dbic_config &page_and_sort &schema &search &simple_search
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
 
 sub dbic_config {
+   $_[0]->{__dbic_connect_info} = $_[1]->{connect_info};
+   if (!$_[0]->{__dbic_connect_info} && $_[0]->can('dbh') ) {
+      my $dbh = $_[0]->dbh;
+      $_[0]->{__dbic_connect_info} = sub { $dbh }
+   }
    my $self = shift;
    my $config = shift;
    my $ignored_params = $config->{ignored_params} ||
@@ -53,7 +60,7 @@ sub paginate {
 sub schema {
    my $self = shift;
    if ( !$self->{schema} ) {
-      $self->{schema} = $self->{__dbic_schema_class}->connect( sub { $self->dbh() } );
+      $self->{schema} = $self->{__dbic_schema_class}->connect( $self->{__dbic_connect_info} );
    }
    return $self->{schema};
 }
@@ -138,19 +145,23 @@ CGI::Application::Plugin::DBIx::Class - Access a DBIx::Class Schema from a CGI::
 
 =head1 VERSION
 
-version 0.100210
+version 1.000000
 
 =head1 SYNOPSIS
 
-
- use CGI::Application::Plugin::DBH (qw/dbh_config dbh/);
  use CGI::Application::Plugin::DBIx::Class ':all';
 
  sub cgiapp_init  {
      my $self = shift;
 
-     $self->dbh_config($data_source, $username, $auth, \%attr);
-     $self->dbic_config({schema => 'MyApp::Schema' });
+     $self->dbic_config({
+        schema => 'MyApp::Schema',
+        connect_info => {
+           dsn => $data_source,
+           user => $username,
+           password => $password,
+        },
+     });
  }
 
  sub person {
@@ -172,28 +183,26 @@ version 0.100210
 
 =head1 DESCRIPTION
 
-
 This module helps you to map various L<DBIx::Class> features to CGI parameters.
 For the most part that means it will help you search, sort, and paginate with a
-minimum of effort and thought.  Currently it uses the connection from
-L<CGI::Application::Plugin::DBH>.
+minimum of effort and thought.
 
 =head1 METHODS
 
-
 =head2 dbic_config
 
-
- $self->dbic_config({schema => MyApp::Schema->connect(@connection_data)});
-
+ $self->dbic_config({
+   schema => MyApp::Schema->connect(@connection_data),
+   connect_info => { ... },
+ });
 
 You must run this method in setup or cgiapp_init to setup your schema.
 
-
 Valid arguments are:
 
-
  schema - Required, Name of DBIC Schema
+ connect_info - Optional, these arguments are what are passed to connect, if
+   this isn't passed and a C<dbh> method exists, that will be used
  ignored_params - Optional, Params to ignore when doing a simple search or sort,
     defaults to
  [qw{limit start sort dir _dc rm xaction}]
@@ -202,51 +211,37 @@ Valid arguments are:
 
 =head2 page_and_sort
 
-
  my $resultset = $self->schema->resultset('Foo');
  my $result = $self->page_and_sort($resultset);
-
 
 This is a helper method that will first sort (with C<simple_sort>) your data and
 then paginate it.  Returns a resultset.
 
-
 =head2 paginate
-
 
  my $resultset = $self->schema->resultset('Foo');
  my $result = $self->paginate($resultset);
 
-
 Paginates the passed in resultset based on the following CGI parameters:
-
 
  start - first row to display
  limit - amount of rows per page
 
-
 Returns a resultset.
-
 
 =head2 schema
 
-
  my $schema = $self->schema;
-
 
 This is just a basic accessor method for your schema
 
-
 =head2 search
-
 
  my $resultset   = $self->schema->resultset('Foo');
  my $searched_rs = $self->search($resultset);
 
-
 Calls the controller_search method on the passed in resultset with all of the
 CGI parameters.  I like to have this look something like the following:
-
 
  # Base search dispatcher, defined in MyApp::Schema::ResultSet
  sub _build_search {
@@ -303,13 +298,10 @@ CGI parameters.  I like to have this look something like the following:
 
 =head2 sort
 
-
  my $resultset = $self->schema->resultset('Foo');
  my $result = $self->sort($resultset);
 
-
 Exactly the same as search, except calls controller_sort.  Here is how I use it:
-
 
  # Base sort dispatcher, defined in MyApp::Schema::ResultSet
  sub _build_sort {
@@ -360,73 +352,56 @@ Exactly the same as search, except calls controller_sort.  Here is how I use it:
 
 =head2 simple_deletion
 
-
  $self->simple_deletion({ rs => 'Foo' });
-
 
 Deletes from the passed in resultset based on the following CGI parameter:
 
-
  to_delete - values of the ids of items to delete
-
 
 Valid arguments are:
 
-
  rs - resultset loaded into schema
-
 
 Note that this method uses the $rs->delete method, as opposed to $rs->delete_all
 
-
 =head2 simple_search
 
-
  my $searched_rs = $self->simple_search({ rs => 'Foo' });
-
 
 This method just searches on all of the CGI parameters that are not in the
 C<ignored_params> with a like "%$value%".  If there are multiple values it will
 make the search an C<or> between the different values.
 
-
 Valid arguments are:
-
 
  rs - source loaded into schema
 
-
 =head2 simple_sort
-
 
  my $resultset = $self->schema->resultset('Foo');
  my $sorted_rs = $self->simple_sort($resultset);
 
-
 Sorts the passed in resultset based on the following CGI parameters:
-
 
  sort - field to sort by, defaults to primarky key
  dir  - direction to sort
 
 =head1 SEE ALSO
 
-
 L<CGI::Application::Plugin::DBH>
 
 =head1 CREDITS
-
 
 Thanks to Micro Technology Services, Inc. for funding the initial development
 of this module.
 
 =head1 AUTHOR
 
-  Arthur Axel "fREW" Schmidt <frioux+cpan@gmail.com>
+Arthur Axel "fREW" Schmidt <frioux+cpan@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2010 by Arthur Axel "fREW" Schmidt.
+This software is copyright (c) 2011 by Arthur Axel "fREW" Schmidt.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

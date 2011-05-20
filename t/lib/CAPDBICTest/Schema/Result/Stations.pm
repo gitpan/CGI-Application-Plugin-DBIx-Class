@@ -1,5 +1,4 @@
 package CAPDBICTest::Schema::Result::Stations;
-our $VERSION = '0.100210';
 use parent 'DBIx::Class';
 use strict;
 use warnings;

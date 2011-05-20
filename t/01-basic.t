@@ -3,13 +3,14 @@ use strict;
 use warnings;
 use Test::More;
 use Test::Deep;
-use lib qw{t/lib lib};
+use UNIVERSAL;
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+use lib "$FindBin::Bin/lib";
+BEGIN { use_ok('CAPDBICTest::Schema') };
 BEGIN {
-   use_ok('CGI::Application::Plugin::DBH');
-   use_ok('CAPDBICTest::Schema');
-
    $ENV{CGI_APP_RETURN_ONLY} = 1;
-   use_ok('CAPDBICTest::CGIApp');
+   use_ok('CAPDBICTest::CGIApp');;
 }
 
 my $t1_obj = CAPDBICTest::CGIApp->new();
@@ -50,7 +51,7 @@ $schema->populate(Stations => [
 ok $t1_obj->schema->isa('DBIx::Class::Schema'), 'schema() method returns DBIx::Class schema';
 ok $t1_obj->schema->resultset('Stations'), 'resultset correctly found';
 
-PAGE_AND_SORT: {
+page_and_sort: {
    $t1_obj->query->param(limit => 3);
    $t1_obj->query->param(dir => 'asc');
    $t1_obj->query->param(sort => 'bill');
@@ -59,11 +60,11 @@ PAGE_AND_SORT: {
    is $paged_and_sorted->count => 3, 'page_and_sort correctly pages';
    cmp_deeply [map $_->bill, $paged_and_sorted->all],
               [sort map $_->bill, $paged_and_sorted->all],
-	      'page_and_sort correctly sorts';
+         'page_and_sort correctly sorts';
    $t1_obj->query->delete_all;
 }
 
-PAGINATE: {
+paginate: {
    $t1_obj->query->param(limit => 3);
    my $paginated = $t1_obj->paginate($t1_obj->schema->resultset('Stations'));
    cmp_ok $paginated->count, '>=', 3,
@@ -79,19 +80,19 @@ PAGINATE: {
    $t1_obj->query->delete_all;
 }
 
-SEARCH: {
+search: {
    my $searched = $t1_obj->search('Stations');
    cmp_deeply [map $_->id, $searched->all], [3], q{controller_search get's called by search};
    $t1_obj->query->delete_all;
 }
 
-SORT: {
+sort: {
    my $sort = $t1_obj->sort('Stations');
    cmp_deeply [map $_->bill, $sort->all], [sort map $_->bill, $sort->all], q{controller_sort get's called by sort};
    $t1_obj->query->delete_all;
 }
 
-SIMPLE_SEARCH: {
+simple_search: {
    $t1_obj->query->param('bill', 'oo');
    my $simple_searched = $t1_obj->simple_search({ rs => 'Stations' });
 
@@ -109,7 +110,7 @@ SIMPLE_SEARCH: {
    $t1_obj->query->delete_all;
 }
 
-SIMPLE_SORT: {
+simple_sort: {
    my $simple_sorted =
       $t1_obj->simple_sort($t1_obj->schema->resultset('Stations'));
    cmp_deeply [map $_->id, $simple_sorted->all], [1..26], 'default sort is id';
@@ -126,11 +127,11 @@ SIMPLE_SORT: {
       $t1_obj->simple_sort($t1_obj->schema->resultset('Stations'));
    cmp_deeply [map $_->bill, $simple_sorted->all],
               [reverse sort map $_->bill, $simple_sorted->all],
-	      'alternate sort works';
+         'alternate sort works';
    $t1_obj->query->delete_all;
 }
 
-PAGE_SIZE: {
+page_size: {
    my $paginated = $t1_obj->paginate($t1_obj->schema->resultset('Stations'));
    is $paginated->count, 25, 'default page size is 25';
 
@@ -143,7 +144,7 @@ PAGE_SIZE: {
    is $paginated->count, 20, 'default page size can be changed with dbic_config';
 }
 
-SIMPLE_DELETION: {
+simple_deletion: {
    $t1_obj->query->param('to_delete', 1, 2, 3);
    cmp_bag [map $_->id, $t1_obj->schema->resultset('Stations')->all] => [1..26],
       'values are not deleted';
@@ -155,3 +156,4 @@ SIMPLE_DELETION: {
 }
 
 done_testing;
+END { unlink $CAPDBICTest::CGIApp::DBFILE };
